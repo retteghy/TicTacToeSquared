@@ -45,13 +45,16 @@ namespace SuperTicTacToe
                 {
                     case protocol.login:
                         Send(client, "login:ok");
-                    // check if the client is already in a game
-                    clients.Append(client);
+                        // check if the client is already in a game
+                        clients.Add(client);
+                        Console.WriteLine($"Client logged in clients in list: {clients.Count}");
                         if (clients.Count >= 2)
-                        {
-                            games.Add(new onlineGame(clients[0], clients[1], GameMode.OfficialRules, this));
-                        }
-                        break;
+                            {
+                                Console.WriteLine("Starting game");
+                                games.Add(new onlineGame(clients[0], clients[1], GameMode.OfficialRules, this));
+                                games.Clear();
+                    }
+                    break;
 
                     case protocol.move:
                         onlineGame game = null;
