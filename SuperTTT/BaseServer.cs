@@ -67,6 +67,12 @@
             Console.WriteLine($"Received: {message}");
         }
 
+        protected virtual void OnClientDisconnected(TcpClient client)
+        {
+            // Base implementation can be empty or log to console
+            Console.WriteLine("BaseServer: Client disconnected (IP not available after close).");
+        }
+
         public void Send(TcpClient client, string message)
         {
             var stream = client.GetStream();

@@ -60,32 +60,78 @@ namespace SuperTicTacToe
                     try
                     {
                         _game.MakeMove(superRow, superCol, row, col);
-                        _currentPlayer = Player.O; // Switch to player O
-                        _server.Send(_client2, $"move:{superRow}:{superCol}:{row}:{col}");
 
+                        // Check for game over conditions
+                        if (_game.OverallWinner != Player.None)
+                        {
+                            _server.Send(_client1, $"game:over:WINNER:{_game.OverallWinner}");
+                            _server.Send(_client2, $"game:over:WINNER:{_game.OverallWinner}");
+                            return;
+                        }
+                        if (_game.IsGameDraw())
+                        {
+                            _server.Send(_client1, "game:over:DRAW");
+                            _server.Send(_client2, "game:over:DRAW");
+                            return;
+                        }
+
+                        // Game continues, switch player and notify
+                        _currentPlayer = Player.O;
+                        _server.Send(_client2, $"move:{superRow}:{superCol}:{row}:{col}");
+                        if (_game.GetNextSuperRow() == -1)
+                        {
+                            _server.Send(_client2, "game:yourturn:any");
+                        }
+                        else
+                        {
+                            _server.Send(_client2, $"game:yourturn:{_game.GetNextSuperRow()}:{_game.GetNextSuperCol()}");
+                        }
+                        _server.Send(_client1, "game:wait");
                     }
                     catch (Exception ex)
                     {
                         _server.Send(pClient, $"error:{ex.Message}");
                     }
-
                 }
                 else
                 {
                     _server.Send(pClient, "error:invalid player");
                 }
             }
-            else
+            else // Current player is O
             {
                 if (pClient == _client2)
                 {
-
                     try
                     {
                         _game.MakeMove(superRow, superCol, row, col);
-                        _currentPlayer = Player.O; // Switch to player O
-                        _server.Send(_client1, $"move:{superRow}:{superCol}:{row}:{col}");
 
+                        // Check for game over conditions
+                        if (_game.OverallWinner != Player.None)
+                        {
+                            _server.Send(_client1, $"game:over:WINNER:{_game.OverallWinner}");
+                            _server.Send(_client2, $"game:over:WINNER:{_game.OverallWinner}");
+                            return;
+                        }
+                        if (_game.IsGameDraw())
+                        {
+                            _server.Send(_client1, "game:over:DRAW");
+                            _server.Send(_client2, "game:over:DRAW");
+                            return;
+                        }
+
+                        // Game continues, switch player and notify
+                        _currentPlayer = Player.X; // Corrected: Switch to player X
+                        _server.Send(_client1, $"move:{superRow}:{superCol}:{row}:{col}");
+                        if (_game.GetNextSuperRow() == -1)
+                        {
+                            _server.Send(_client1, "game:yourturn:any");
+                        }
+                        else
+                        {
+                            _server.Send(_client1, $"game:yourturn:{_game.GetNextSuperRow()}:{_game.GetNextSuperCol()}");
+                        }
+                        _server.Send(_client2, "game:wait");
                     }
                     catch (Exception ex)
                     {
@@ -97,9 +143,6 @@ namespace SuperTicTacToe
                     _server.Send(pClient, "error:invalid player");
                 }
             }
-
-            // Check if the game is over
-            
         }
     }
 }

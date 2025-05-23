@@ -33,7 +33,10 @@ namespace SuperTicTacToe
             _nextSuperRow = -1; // Indicates any super board can be played on the first move
             _nextSuperCol = -1; // Indicates any super board can be played on the first move
             _gameMode = gameMode;
+            OverallWinner = Player.None; // Initialize OverallWinner
         }
+
+        public Player OverallWinner { get; private set; } // Added OverallWinner property
 
         public Player GetCurrentPlayer()
         {
@@ -106,11 +109,33 @@ namespace SuperTicTacToe
                 _superBoard[superRow, superCol] = _currentPlayer;
             }
 
-            // Update next super board position
-            _nextSuperRow = row;
-            _nextSuperCol = col;
+            // Determine the target sub-board for the next move
+            int targetNextSuperRow = row;
+            int targetNextSuperCol = col;
 
-            _currentPlayer = _currentPlayer == Player.X ? Player.O : Player.X; // Switch players
+            // Check if the target sub-board is already won or full
+            if (_superBoard[targetNextSuperRow, targetNextSuperCol] != Player.None || IsSubBoardFull(targetNextSuperRow, targetNextSuperCol))
+            {
+                // If won or full, the next player can play anywhere
+                _nextSuperRow = -1;
+                _nextSuperCol = -1;
+            }
+            else
+            {
+                // Otherwise, the next move is in the target sub-board
+                _nextSuperRow = targetNextSuperRow;
+                _nextSuperCol = targetNextSuperCol;
+            }
+
+            // Check for overall winner or draw
+            if (CheckOverallWinner() || IsGameDraw())
+            {
+                // Game over logic can be handled here or by the caller
+            }
+            else
+            {
+                _currentPlayer = _currentPlayer == Player.X ? Player.O : Player.X; // Switch players if game is not over
+            }
 
             return true;
         }
@@ -156,6 +181,77 @@ namespace SuperTicTacToe
 
             return false;
         }
+
+        public bool CheckOverallWinner() // Added CheckOverallWinner method
+        {
+            // Check rows
+            for (int i = 0; i < 3; i++)
+            {
+                if (_superBoard[i, 0] == _superBoard[i, 1] &&
+                    _superBoard[i, 1] == _superBoard[i, 2] &&
+                    _superBoard[i, 0] != Player.None)
+                {
+                    OverallWinner = _superBoard[i, 0];
+                    return true;
+                }
+            }
+
+            // Check columns
+            for (int i = 0; i < 3; i++)
+            {
+                if (_superBoard[0, i] == _superBoard[1, i] &&
+                    _superBoard[1, i] == _superBoard[2, i] &&
+                    _superBoard[0, i] != Player.None)
+                {
+                    OverallWinner = _superBoard[0, i];
+                    return true;
+                }
+            }
+
+            // Check diagonals
+            if (_superBoard[0, 0] == _superBoard[1, 1] &&
+                _superBoard[1, 1] == _superBoard[2, 2] &&
+                _superBoard[0, 0] != Player.None)
+            {
+                OverallWinner = _superBoard[0, 0];
+                return true;
+            }
+
+            if (_superBoard[0, 2] == _superBoard[1, 1] &&
+                _superBoard[1, 1] == _superBoard[2, 0] &&
+                _superBoard[0, 2] != Player.None)
+            {
+                OverallWinner = _superBoard[0, 2];
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool IsGameDraw() // Added IsGameDraw method
+        {
+            if (OverallWinner != Player.None)
+            {
+                return false; // Not a draw if there's a winner
+            }
+
+            for (int r = 0; r < 3; r++)
+            {
+                for (int c = 0; c < 3; c++)
+                {
+                    if (_superBoard[r, c] == Player.None && !IsSubBoardFull(r, c))
+                    {
+                        return false; // If any sub-board is not won and not full, the game is not a draw
+                    }
+                }
+            }
+
+            return true; // All sub-boards are either won or full, and there's no overall winner
+        }
+
+        public int GetNextSuperRow() { return _nextSuperRow; } // Added getter for _nextSuperRow
+
+        public int GetNextSuperCol() { return _nextSuperCol; } // Added getter for _nextSuperCol
 
     }
 }
