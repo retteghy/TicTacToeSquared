@@ -27,6 +27,7 @@ namespace SuperTicTacToe
         public override void OnMessageReceived(TcpClient client, string message)
         {
             protocol firstPart = protocol.error;
+            Console.WriteLine(message);
 
             String[] messageParts = message.Split(":");
             switch(messageParts[0])
@@ -58,10 +59,12 @@ namespace SuperTicTacToe
 
                     case protocol.move:
                         onlineGame game = null;
-                        // check the games list if the client is in a game
+                    // check the games list if the client is in a game
+                    Console.WriteLine(client.Client.RemoteEndPoint);
                         for (int i = 0; i < games.Count; i++)
                         {
-                            if (games[i].Client1 == client || games[i].Client2 == client)
+                            Console.WriteLine(games[i].Client1.Client.RemoteEndPoint);
+                            if (games[i].Client1.Client.RemoteEndPoint == client.Client.RemoteEndPoint || games[i].Client2.Client.RemoteEndPoint == client.Client.RemoteEndPoint)
                             {
                                 // found the game
                                 game = games[i];
@@ -81,6 +84,7 @@ namespace SuperTicTacToe
                         }
                         else
                         {
+                            Console.WriteLine("Player was not found in Game Pool!");
                             Send(client, "error:not in a game");
                         }
 

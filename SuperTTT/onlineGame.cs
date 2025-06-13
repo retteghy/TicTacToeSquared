@@ -13,7 +13,7 @@ namespace SuperTicTacToe
         static void Main(string[] args)
         {
             // Initialize the server and start listening for connections
-            CustomServer server = new CustomServer(80);
+            CustomServer server = new CustomServer(4321);
             server.Start();
         }
     }
