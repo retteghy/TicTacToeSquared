@@ -62,6 +62,8 @@ namespace SuperTicTacToe
                         _game.MakeMove(superRow, superCol, row, col);
                         _currentPlayer = Player.O; // Switch to player O
                         _server.Send(_client2, $"move:{superRow}:{superCol}:{row}:{col}");
+                        _server.Send(_client2, "game:yourturn"); // Notify player O (now current player)
+                        _server.Send(_client1, "game:wait"); // Notify player X to wait
 
                     }
                     catch (Exception ex)
@@ -83,8 +85,10 @@ namespace SuperTicTacToe
                     try
                     {
                         _game.MakeMove(superRow, superCol, row, col);
-                        _currentPlayer = Player.O; // Switch to player O
+                        _currentPlayer = Player.X; // Switch to player X
                         _server.Send(_client1, $"move:{superRow}:{superCol}:{row}:{col}");
+                        _server.Send(_client1, "game:yourturn"); // Notify player X (now current player)
+                        _server.Send(_client2, "game:wait"); // Notify player O to wait
 
                     }
                     catch (Exception ex)

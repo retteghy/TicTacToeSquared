@@ -52,8 +52,11 @@ namespace SuperTicTacToe
                         if (clients.Count >= 2)
                             {
                                 Console.WriteLine("Starting game");
-                                games.Add(new onlineGame(clients[0], clients[1], GameMode.OfficialRules, this));
-                                games.Clear();
+                                TcpClient client1 = clients[0];
+                                TcpClient client2 = clients[1];
+                                games.Add(new onlineGame(client1, client2, GameMode.OfficialRules, this));
+                                clients.RemoveRange(0, 2); // Remove the first two clients
+                                Console.WriteLine($"Game started. Clients remaining in queue: {clients.Count}");
                     }
                     break;
 
